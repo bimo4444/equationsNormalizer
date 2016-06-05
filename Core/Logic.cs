@@ -29,20 +29,20 @@ namespace Core
             input = input.Replace(" ", "");
             Check(input);
             string[] sides = input.Split('=');                                  //split
-            var leftSide = Process(sides[0]);
+            var leftSide = Process(sides[0]);                                   //logic
             var rightSide = Process(sides[1]);
             foreach (var v in rightSide)
                 v.Digits *= -1;                                                 //invert
-            leftSide = leftSide.Union(rightSide).ToList();
-            leftSide = GroupWithSum(leftSide);
+            leftSide = leftSide.Union(rightSide).ToList();                      //union
+            leftSide = GroupWithSum(leftSide);                                  //group
             leftSide = leftSide
                 .Where(w => w.Digits != 0)
-                .ToList();
+                .ToList();                                                      //delete zeros
             return MakeString(leftSide);
         }
         private void Check(string input)
         {
-            input = input.Replace("'", "?").Replace(",", ".");
+            input = input.Replace("'", "?").Replace(",", ".");                  //change ',' with '.' for parsing
             if (input.Length == 0)
                 throw new Exception("empty string");
             if (input.IndexOfAny(new char[] { '\\', '/', ':', '*', '<', '>', '|', '#', '{', '}', '%', '~', '&', '"', '?', '!' }) != -1)
@@ -51,10 +51,10 @@ namespace Core
                 throw new Exception("input doesn't contain '='");
             if (input.StartsWith("=") || input.EndsWith("="))
                 throw new Exception("wrong format");
-            Regex regex = new Regex("[=]", RegexOptions.IgnoreCase);
+            Regex regex = new Regex("[=]", RegexOptions.IgnoreCase);            
             MatchCollection matches = regex.Matches(input);
             if (matches.Count > 1)
-                throw new Exception("'=' can't be more then once");
+                throw new Exception("'=' can't be more then once");             //if multiple '='
         }
         private List<Unit> Process(string s)
         {
@@ -162,9 +162,9 @@ namespace Core
                     {
                         if (Char.IsDigit(chars[i + 1]) || chars[i + 1].Equals('.'))     //if next is digit or point
                         {
-                            if(i + 2 == chars.Length || !Char.IsDigit(chars[i + 2]))    //if last char point
+                            if(chars[i + 1].Equals('.') && (i + 2 == chars.Length || !Char.IsDigit(chars[i + 2])))    
                             {
-                                throw new Exception("wrong format");
+                                throw new Exception("wrong format");                    //if last char point
                             }
                             continue;                                                   //skip while next is digits
                         }
@@ -212,7 +212,7 @@ namespace Core
                 return "+" + unit.Letters;
             if (unit.Digits == -1 && unit.Letters != "")                                //-1gg to -gg
                 return "-" + unit.Letters;
-            string result = unit.Digits.ToString("#.########", numberFormatInfo) + unit.Letters;
+            string result = unit.Digits.ToString("0.##############################", numberFormatInfo) + unit.Letters;
             return unit.Digits > 0 ? "+" + result : result;                             //must contain plus
         }
         private string MakeString(List<Unit> list)
