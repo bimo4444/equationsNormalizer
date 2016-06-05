@@ -47,10 +47,7 @@ namespace ConsoleTest
         }
         private string InvertPath(string path)                              //change old extension with .out
         {
-            FileInfo oldFile = new FileInfo(path);
-            string oldExtension = oldFile.Extension;
-            string newFile = oldFile.Name.Replace(oldExtension, ".out");
-            return Path.Combine(oldFile.Directory.FullName, newFile);
+            return Path.ChangeExtension(path, ".out");
         }
         private void Write(List<string> list, string path)
         {

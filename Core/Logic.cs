@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Core.Extensions;
+using System.Globalization;
 
 namespace Core
 {
@@ -16,10 +17,17 @@ namespace Core
             public string Letters { get; set; }
             public decimal Digits { get; set; }
         }
+        System.Globalization.NumberFormatInfo numberFormatInfo;
+        public Logic()
+        {
+            System.Globalization.CultureInfo cultureInfo = System.Globalization.CultureInfo.InstalledUICulture;
+            numberFormatInfo = (System.Globalization.NumberFormatInfo)cultureInfo.NumberFormat.Clone();
+            numberFormatInfo.NumberDecimalSeparator = ".";
+        }
         public string Go(string input)
         {
-            Check(input);
             input = input.Replace(" ", "");
+            Check(input);
             string[] sides = input.Split('=');                                  //split
             var leftSide = Process(sides[0]);
             var rightSide = Process(sides[1]);
@@ -34,7 +42,7 @@ namespace Core
         }
         private void Check(string input)
         {
-            input = input.Replace("'", "?");
+            input = input.Replace("'", "?").Replace(",", ".");
             if (input.Length == 0)
                 throw new Exception("empty string");
             if (input.IndexOfAny(new char[] { '\\', '/', ':', '*', '<', '>', '|', '#', '{', '}', '%', '~', '&', '"', '?', '!' }) != -1)
@@ -152,17 +160,19 @@ namespace Core
                 {
                     if (Char.IsDigit(chars[i]))
                     {
-                        if (Char.IsDigit(chars[i + 1]))
+                        if (Char.IsDigit(chars[i + 1]) || chars[i + 1].Equals('.'))     //if next is digit or point
                         {
-                            continue;                                                   //skip while digits
+                            if(i + 2 == chars.Length || !Char.IsDigit(chars[i + 2]))    //if last char point
+                            {
+                                throw new Exception("wrong format");
+                            }
+                            continue;                                                   //skip while next is digits
                         }
                         if (Char.IsLetter(chars[i + 1]))                                //next char is letter
                         {
                             string left = s.Substring(0, i + 1);
                             string right = s.Substring(i + 1);
-                            decimal d;
-                            if (!Decimal.TryParse(left, out d))                         //parsing digits
-                                throw new Exception("parsing error: " + left);
+                            decimal d = Decimal.Parse(left, numberFormatInfo);          //parsing digits
                             return new Unit { Digits = positive ? d : -d, Letters = right };
                         }
                     }
@@ -171,9 +181,13 @@ namespace Core
                         break;
                     }
                 }
-                else                                                                    //if last char and no digits before
+                else                                                                    //if case of a single char
                 {
-                    decimal d = Char.IsDigit(chars[i]) ? Decimal.Parse(s) : 1;
+                    if (chars[i].Equals('.'))                                           //if last char point
+                    {
+                        throw new Exception("wrong format");
+                    }
+                    decimal d = Char.IsDigit(chars[i]) ? Decimal.Parse(s, numberFormatInfo) : 1;
                     return new Unit { Digits = positive ? d : -d, Letters = !Char.IsDigit(chars[i]) ? s : "" };
                 }
             }
@@ -198,7 +212,7 @@ namespace Core
                 return "+" + unit.Letters;
             if (unit.Digits == -1 && unit.Letters != "")                                //-1gg to -gg
                 return "-" + unit.Letters;
-            string result = unit.Digits + unit.Letters;
+            string result = unit.Digits.ToString("#.########", numberFormatInfo) + unit.Letters;
             return unit.Digits > 0 ? "+" + result : result;                             //must contain plus
         }
         private string MakeString(List<Unit> list)
