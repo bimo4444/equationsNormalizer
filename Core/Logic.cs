@@ -63,6 +63,10 @@ namespace Core
                 var indexes1 = s.AllIndexesOf("(").ToList();
                 var indexes2 = s.AllIndexesOf(")").ToList();
                 indexes2.Reverse();
+                if(!indexes1.Any() || !indexes2.Any())
+                {
+                    throw new Exception("wrong format");
+                }
                 int start = indexes1.Select(c => c).Last();
                 int end = indexes2.Select(c => c).Last();
                 if (indexes1.Count() != indexes2.Count() || start > end)

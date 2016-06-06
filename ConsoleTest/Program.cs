@@ -25,7 +25,7 @@ namespace ConsoleTest
             {
                 try
                 {
-                    Console.WriteLine("ввудите уравнение или имя файла");
+                    Console.WriteLine("введите уравнение или имя файла");
                     input = Console.ReadLine();
                     if(File.Exists(input))
                     {
