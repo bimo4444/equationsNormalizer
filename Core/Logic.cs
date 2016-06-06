@@ -111,7 +111,7 @@ namespace Core
                     foreach (var v in temp)
                         left += UnitToString(v);
                     left += right;
-                    return Process(left);
+                    return Process(left);                                           //recursive
                 }
                 else
                 {
