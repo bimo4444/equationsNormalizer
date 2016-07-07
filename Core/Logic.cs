@@ -9,7 +9,7 @@ using System.Globalization;
 
 namespace Core
 {
-    //all next to first letter char is a variable.
+    //all next to first letter char is a variable..
     public class Logic
     {
         class Unit
